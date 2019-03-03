@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>展示页面</title>
+</head>
+<body>
+    <div id="user">
+        <table border="1px" width="600px" cellspacing="0" align="center">
+	        <th>ID</th>
+	        <th>用户名</th>
+	        <th>真实姓名</th>
+	        <th>性别</th>
+	        <th>操作</th>
+	        <tbody>
+                <tr v-for="user in user_list" align="center">
+                   <td>{{user.id}}</td>
+                   <td>{{user.username}}</td>
+                   <td>{{user.realname}}</td>
+                   <td>{{user.sex}}</td>
+                   <td><button v-on:click="userDel(user.id)">删除</button></td>
+                </tr>
+	        </tbody>
+        </table>
+    </div>
+	<script src="/static/vue.js"></script>
+    <script src="/static/jq.js"></script>
+    <script src="/static/md5.js"></script>
+    <script>
+    //生成sign签名
+    function createSign(string)
+    {
+    	var sercet="123456";
+    	return hex_md5(string+sercet);
+    }
+        
+        var user =new Vue({
+        	el:"#user",
+        	data:{
+        		user_list:[]
+        	},
+            created:function(){
+            	this.userList();
+            },
+            methods:{
+            	userList:function(){
+            		var that=this;
+
+            		var string="limit=10";
+
+            		var sign=createSign(string);
+            		$.ajax({
+            			url:"http://www.home.com/api/Lists/userlist",
+            			type:"post",
+            			dataType:"json",
+            			data:{limit:10,sign:sign},
+            			success:function(res){
+            				if(res.code==2000){
+            					that.user_list=res.data;
+            				}
+            			},
+            			error:function(res){
+
+            			}
+            		})
+            	},
+            	userDel:function(id){
+            		var that=this;
+                    
+                    var string="id="+id;
+
+                    var sign=createSign(string);
+
+                    $.ajax({
+                    	url:"http://www.home.com/api/Lists/delUser",
+                    	type:"post",
+                    	dataType:"json",
+                    	data:{id:id,sign:sign},
+                    	success:function(res){
+                            if(res.code==2000){
+                            	that.userList();
+                            }
+                    	}
+                    })
+            	}
+            }
+        })
+    </script>
+</body>
+</html>

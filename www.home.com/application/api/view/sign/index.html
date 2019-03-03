@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div id="app">
+        <button v-on:click="doSign">签到</button><span v-if="show">今日已签到，获得积分{{score}}分</span>
+        <p>
+        <table border="1px">
+          <thead>
+            <th>总计签到</th>
+            <th>总积分</th>
+            <th>总签到天数</th>
+          </thead>
+          <tbody>
+             <tr v-for="sign in sign_list">
+                <td>{{sign.c_days}}</td>
+                <td>{{sign.total_scores}}</td>
+                <td>{{sign.total_days}}</td>
+             </tr>
+          </tbody>
+        </table>
+	</div>
+</body>
+  <script src="/static/jq.js"></script>
+  <script src="/static/vue.js"></script>
+  <script>
+    var app=new Vue({
+       el:"#app",
+       data:{
+        show:false,
+        score:0,
+        sign_list:[],
+       },
+       created:function(){
+        this.list();
+       },
+       methods:{
+        //获取签名列表
+       	list:function(){
+          var that =this;
+       		$.ajax({
+       			url:"http://www.home.com/api/sign/getList",
+       			type:"post",
+       			dataType:"json",
+       			data:{},
+       			success:function(res){
+              if(res.code==2000){
+                that.sign_list=res.data;
+              }
+
+       			},
+       			error:function(res){
+       				
+       			}
+       		})
+       	},
+        
+        //执行签名
+        doSign:function(){
+          var that=this;
+
+          $.ajax({
+            url:"http://www.home.com/api/sign/doSign",
+            type:"post",
+            dataType:"json",
+            data:{user_id:1},
+            success:function(res){
+              if(res.code==2000){
+                that.score=res.data.score;
+                that.show=true;
+                that.list();
+              }else{
+                alert(res.msg);
+                return false;
+              }
+            },
+            error:function(res){
+
+            }
+          })
+        }
+       }
+    })
+  </script>
+</html>

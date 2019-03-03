@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>登录页面</title>
+</head>
+<body>
+     
+    <div id="app">
+        <label for="">用户名：</label><input type="input" name="username"><p>
+        <label for="">密&nbsp;码：</label><input type="password" name="password"><p>
+        <button @click="login" >立即注册</button>
+    </div>
+    <script src="/static/vue.js"></script>
+    <script src="/static/jq.js"></script>
+	<script>
+        
+        var app =new Vue({
+        	el:"#app",
+        	data:{},
+        	created:function(){
+                this.check_token();
+        	},
+        	methods:{
+        		login:function(){
+        			var username=$("input[name=username]").val();
+        			var password=$("input[name=password]").val();
+
+        			if(username=='' || password==''){
+        				alert('用户名或密码不能为空');
+        				return false;
+        			}
+
+        			$.ajax({
+        				url:"http://www.home.com/api/login/login",
+        				type:"post",
+        				dataType:"json",
+        				data:{username:username,password:password},
+        				success:function(res){
+                            if(res.code==2000){
+                            	localStorage.setItem('ks_token',res.data.token);
+                            	window.location.href="/home/index/index";
+                            }else{
+                            	alert(res.msg);
+                            }
+        				},
+        				error:function(res){
+
+        				}
+        			})
+        		},
+
+        		check_token:function(){
+        			var token =localStorage.getItem('ks_token');
+
+        			if(token){
+        				$.ajax({
+        					url:"http://www.home.com/api/login/checkUserToken",
+        					type:"post",
+        					dataType:'json',
+        					data:{token:token},
+        					success:function(res){
+        						if(res.code==2000){
+        							window.location.href="/home/index/index";
+        						}else{
+        							alert(res.msg);
+        						}
+        					}
+        				})
+        			}
+        		}
+        	}
+        })
+	</script>
+</body>
+</html>
